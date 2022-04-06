@@ -4,6 +4,7 @@ from src.service.task_service import TaskService
 from src.exception.business_exception import BusinessException
 from src import app
 
+
 # Add task
 @app.route("/tasks", methods=["POST"])
 def add():
