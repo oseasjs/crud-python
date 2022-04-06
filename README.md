@@ -1,5 +1,12 @@
 ## CRUD Python
 
+### Build Branches Status
+
+| Branch        | Build         | Coverage  |
+| ------------- |:-------------:| ---------:|
+| Develop       | ![CI](https://github.com/oseasjs/crud-python/workflows/CI/badge.svg?branch=develop) | [![codecov](https://codecov.io/gh/oseasjs/crud-python/branch/develop/graph/badge.svg)](https://codecov.io/gh/oseasjs/crud-python/branch/develop) |
+| Main          | ![CI](https://github.com/oseasjs/crud-python/workflows/CI/badge.svg?branch=main)  | [![codecov](https://codecov.io/gh/oseasjs/crud-python/branch/main/graph/badge.svg)](https://codecov.io/gh/oseasjs/crud-python/branch/main) |
+
 ### Bootstrapped with
 
 - [Python 3.x](https://www.python.org/doc)
