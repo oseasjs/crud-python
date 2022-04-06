@@ -8,15 +8,15 @@ from src.exception.business_exception import BusinessException
 faker = Faker()
 
 
-class TaskServiceTest(unittest.TestCase):
+class TaskServiceUnitTest(unittest.TestCase):
     def setUp(self):
-        super(TaskServiceTest, self).setUp()
+        super(TaskServiceUnitTest, self).setUp()
         self.expected_task = add_task(
             faker.random_number(digits=5), faker.name(), faker.name()
         )
 
     def tearDown(self):
-        super(TaskServiceTest, self).tearDown()
+        super(TaskServiceUnitTest, self).tearDown()
         delete_task(self.expected_task.id)
         self.mock_data = []
 
@@ -264,7 +264,3 @@ def select_task(task_id: int) -> Task:
             raise
         finally:
             conn.session.close()
-
-
-if __name__ == "__main__":
-    unittest.main()
