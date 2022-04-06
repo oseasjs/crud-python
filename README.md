@@ -19,6 +19,7 @@
 - [PyTest](https://docs.pytest.org/en/6.2.x/contents.html)
 - [Faker](https://faker.readthedocs.io/en/master/)
 - [Github Action](https://github.com/features/actions)
+- [Coverage](https://coverage.readthedocs.io/en/6.3.2/)
 
 ### Project Goal
 
