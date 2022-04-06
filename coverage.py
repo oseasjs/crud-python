@@ -3,7 +3,7 @@ import unittest
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(TaskServiceUnitTest)
+    suite.addTest(TaskServiceUnitTest())
     return suite
 
 if __name__ == '__main__':
