@@ -44,8 +44,10 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Test with pytest
         run: |
-          pytest .
-          coverage run -m pytest
+          pytest .clear
+
+      - name: Run Coverage
+        run: |
           coverage run -m --source=. unittest
           coverage report -m
           coverage xml
