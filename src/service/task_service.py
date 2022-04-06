@@ -4,6 +4,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from src.model import Task
 from src.config import DbConnectionHandler
 from src.exception.business_exception import BusinessException
+from src.utils.constants import Constants
 from .task_service_interface import TaskServiceInterface
 
 
@@ -19,10 +20,10 @@ class TaskService(TaskServiceInterface):
         """
 
         if body.get("title") is None or body.get("title").strip() == "":
-            raise BusinessException("Title is required")
+            raise BusinessException(Constants.TASK_ID_REQUIRED_MESSAGE)
 
         if body.get("description") is None or body.get("description").strip() == "":
-            raise BusinessException("Description is required")
+            raise BusinessException(Constants.TASK_DESCRIPTION_REQUIRED_MESSAGE)
 
         with DbConnectionHandler() as conn:
             try:
@@ -51,14 +52,14 @@ class TaskService(TaskServiceInterface):
         :return updated task
         """
 
-        if task_id == None:
-            raise BusinessException("Task ID is required")
+        if task_id is None:
+            raise BusinessException(Constants.TASK_ID_REQUIRED_MESSAGE)
 
         if body.get("title") is None or body.get("title").strip() == "":
-            raise BusinessException("Title is required")
+            raise BusinessException(Constants.TASK_TITLE_REQUIRED_MESSAGE)
 
         if body.get("description") is None or body.get("description").strip() == "":
-            raise BusinessException("Description is required")
+            raise BusinessException(Constants.TASK_DESCRIPTION_REQUIRED_MESSAGE)
 
         with DbConnectionHandler() as conn:
             try:
@@ -82,8 +83,8 @@ class TaskService(TaskServiceInterface):
         :param - task id
         """
 
-        if task_id == None:
-            raise BusinessException("Task ID is required")
+        if task_id is None:
+            raise BusinessException(Constants.TASK_ID_REQUIRED_MESSAGE)
 
         with DbConnectionHandler() as conn:
             try:
@@ -129,8 +130,8 @@ class TaskService(TaskServiceInterface):
         :return - Tasks selected
         """
 
-        if task_id == None:
-            raise BusinessException("Task ID is required")
+        if task_id is None:
+            raise BusinessException(Constants.TASK_ID_REQUIRED_MESSAGE)
 
         try:
             query_data = None

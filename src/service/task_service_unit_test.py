@@ -2,25 +2,33 @@ import unittest
 from faker import Faker
 from src.model import Task
 from src.config import DbConnectionHandler
-from .task_service import TaskService
 from src.exception.business_exception import BusinessException
+from src.utils.constants import Constants
+from .task_service import TaskService
 
 faker = Faker()
 
 
 class TaskServiceUnitTest(unittest.TestCase):
+    """Class to test TaskService methods"""
+
     def setUp(self):
-        super(TaskServiceUnitTest, self).setUp()
+        """Method to create a task in db to be used on tests"""
+
+        super().setUp()
         self.expected_task = add_task(
             faker.random_number(digits=5), faker.name(), faker.name()
         )
 
     def tearDown(self):
-        super(TaskServiceUnitTest, self).tearDown()
-        delete_task(self.expected_task.id)
-        self.mock_data = []
+        """Method to delete the task created on setUp method"""
 
-    def test_add_success(self):
+        super().tearDown()
+        delete_task(self.expected_task.id)
+        self.expected_task = None
+
+    @classmethod
+    def test_add_success(cls):
         """Test task service add method"""
 
         params = {"title": faker.name(), "description": faker.name()}
@@ -38,37 +46,43 @@ class TaskServiceUnitTest(unittest.TestCase):
 
     def test_add_missing_title_failed(self):
         """Test task service add method missing title field on payload"""
-        try:
+
+        with self.assertRaises(BusinessException) as context:
             params = {"description": faker.name()}
             TaskService().add(params)
-        except BusinessException as ex:
-            assert str(ex).upper() == "TITLE IS REQUIRED"
+
+        self.assertTrue(Constants.TASK_ID_REQUIRED_MESSAGE in str(context.exception))
 
     def test_add_blank_title_failed(self):
         """Test task service add method with blank title on payload"""
-        try:
+
+        with self.assertRaises(BusinessException) as context:
             params = {"title": " "}
             TaskService().add(params)
-        except BusinessException as ex:
-            assert str(ex).upper() == "TITLE IS REQUIRED"
+
+        self.assertTrue(Constants.TASK_ID_REQUIRED_MESSAGE in str(context.exception))
 
     def test_add_missing_description_failed(self):
         """Test task service add method missing description field on payload"""
 
-        try:
+        with self.assertRaises(BusinessException) as context:
             params = {"title": faker.name()}
             TaskService().add(params)
-        except BusinessException as ex:
-            assert str(ex).upper() == "DESCRIPTION IS REQUIRED"
+
+        self.assertTrue(
+            Constants.TASK_DESCRIPTION_REQUIRED_MESSAGE in str(context.exception)
+        )
 
     def test_add_blank_description_failed(self):
         """Test task service add method with blank description on payload"""
 
-        try:
+        with self.assertRaises(BusinessException) as context:
             params = {"title": faker.name(), "description": " "}
             TaskService().add(params)
-        except BusinessException as ex:
-            assert str(ex).upper() == "DESCRIPTION IS REQUIRED"
+
+        self.assertTrue(
+            Constants.TASK_DESCRIPTION_REQUIRED_MESSAGE in str(context.exception)
+        )
 
     def test_update_success(self):
         """Test task service update method"""
@@ -86,49 +100,56 @@ class TaskServiceUnitTest(unittest.TestCase):
 
     def test_update_missing_task_id_failed(self):
         """Test task service update method missing task_id param"""
-        try:
+
+        with self.assertRaises(BusinessException) as context:
             TaskService().update(None, {})
-        except BusinessException as ex:
-            assert str(ex).upper() == "TASK ID IS REQUIRED"
+
+        self.assertTrue(Constants.TASK_ID_REQUIRED_MESSAGE in str(context.exception))
 
     def test_update_missing_title_failed(self):
         """Test task service update method missing title field on payload"""
-        try:
+
+        with self.assertRaises(BusinessException) as context:
             params = {"description": faker.name()}
             TaskService().update(self.expected_task.id, params)
-        except BusinessException as ex:
-            assert str(ex).upper() == "TITLE IS REQUIRED"
+
+        self.assertTrue(Constants.TASK_TITLE_REQUIRED_MESSAGE in str(context.exception))
 
     def test_update_blank_title_failed(self):
         """Test task service add method with blank title on payload"""
-        try:
+
+        with self.assertRaises(BusinessException) as context:
             params = {"title": " "}
             TaskService().update(self.expected_task.id, params)
-        except BusinessException as ex:
-            assert str(ex).upper() == "TITLE IS REQUIRED"
+
+        self.assertTrue(Constants.TASK_TITLE_REQUIRED_MESSAGE in str(context.exception))
 
     def test_update_missing_description_failed(self):
         """Test task service add method missing description field on payload"""
 
-        try:
+        with self.assertRaises(BusinessException) as context:
             params = {"title": faker.name()}
             TaskService().update(self.expected_task.id, params)
-        except BusinessException as ex:
-            assert str(ex).upper() == "DESCRIPTION IS REQUIRED"
+
+        self.assertTrue(
+            Constants.TASK_DESCRIPTION_REQUIRED_MESSAGE in str(context.exception)
+        )
 
     def test_update_blank_description_failed(self):
         """Test task service add method with blank description on payload"""
 
-        try:
+        with self.assertRaises(BusinessException) as context:
             params = {"title": faker.name(), "description": " "}
             TaskService().update(self.expected_task.id, params)
-        except BusinessException as ex:
-            assert str(ex).upper() == "DESCRIPTION IS REQUIRED"
 
-    def test_delete_success(self):
+        self.assertTrue(
+            Constants.TASK_DESCRIPTION_REQUIRED_MESSAGE in str(context.exception)
+        )
+
+    @classmethod
+    def test_delete_success(cls):
         """Test task service delete method"""
 
-        task_id = faker.random_number(digits=5)
         task_inserted = add_task(
             faker.random_number(digits=5), faker.name(), faker.name()
         )
@@ -140,10 +161,10 @@ class TaskServiceUnitTest(unittest.TestCase):
     def test_delete_missing_task_id_failed(self):
         """Test task service delete missing task_id method"""
 
-        try:
+        with self.assertRaises(BusinessException) as context:
             TaskService().delete(None)
-        except BusinessException as ex:
-            assert str(ex).upper() == "TASK ID IS REQUIRED"
+
+        self.assertTrue(Constants.TASK_ID_REQUIRED_MESSAGE in str(context.exception))
 
     def test_find_all_success(self):
         """Test task service find_all method"""
@@ -171,10 +192,10 @@ class TaskServiceUnitTest(unittest.TestCase):
     def test_find_by_id_missing_task_id_failed(self):
         """Test task service find_by_id method"""
 
-        try:
-            task = TaskService().find_by_id(None)
-        except BusinessException as ex:
-            assert str(ex).upper() == "TASK ID IS REQUIRED"
+        with self.assertRaises(BusinessException) as context:
+            TaskService().find_by_id(None)
+
+        self.assertTrue(Constants.TASK_ID_REQUIRED_MESSAGE in str(context.exception))
 
     def test_find_by_title_success(self):
         """Test task service find by title method"""
@@ -208,12 +229,11 @@ class TaskServiceUnitTest(unittest.TestCase):
 
 
 def add_task(task_id: int, title: str, description: str) -> Task:
+    """Add task in db for tests"""
     with DbConnectionHandler() as conn:
         try:
             conn.session.execute(
-                "INSERT INTO tasks (id, title, description) VALUES ('{}', '{}', '{}');".format(
-                    task_id, title, description
-                )
+                f"INSERT INTO tasks (id, title, description) VALUES ('{task_id}', '{title}', '{description}');"
             )
             conn.session.commit()
             return Task(
@@ -221,36 +241,36 @@ def add_task(task_id: int, title: str, description: str) -> Task:
                 title=title,
                 description=description,
             )
-        except Exception as ex:
+        except:
             conn.session.rollback()
-            print(ex)
             raise
         finally:
             conn.session.close()
 
 
 def delete_task(task_id: int):
+    """Delete task from db created for tests"""
     with DbConnectionHandler() as conn:
         try:
-            conn.session.execute("DELETE FROM tasks WHERE id={};".format(task_id))
+            conn.session.execute(f"DELETE FROM tasks WHERE id={task_id};")
             conn.session.commit()
-        except Exception as ex:
+        except:
             conn.session.rollback()
-            print(ex)
             raise
         finally:
             conn.session.close()
 
 
 def select_task(task_id: int) -> Task:
+    """Select task from db created for tests"""
     with DbConnectionHandler() as conn:
         try:
             task = conn.session.execute(
-                "SELECT * FROM tasks WHERE id='{}';".format(task_id)
+                f"SELECT * FROM tasks WHERE id='{task_id}';"
             ).fetchone()
             conn.session.commit()
 
-            if task == None:
+            if task is None:
                 return None
 
             return Task(
@@ -258,9 +278,8 @@ def select_task(task_id: int) -> Task:
                 title=task.title,
                 description=task.description,
             )
-        except Exception as ex:
+        except:
             conn.session.rollback()
-            print(ex)
             raise
         finally:
             conn.session.close()
