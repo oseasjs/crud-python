@@ -13,15 +13,15 @@ class TaskService(TaskServiceInterface):
     @classmethod
     def add(cls, body: json) -> Task:
         """
-        Insert data in task table
+        Insert task in db
         :param - json with title and description fields
-        :return tuple with new task information inserted
+        :return task inserted
         """
 
-        if body.get("title") is None:
+        if body.get("title") is None or body.get("title").strip() == "":
             raise BusinessException("Title is required")
 
-        if body.get("description") is None:
+        if body.get("description") is None or body.get("description").strip() == "":
             raise BusinessException("Description is required")
 
         with DbConnectionHandler() as conn:
@@ -45,16 +45,19 @@ class TaskService(TaskServiceInterface):
     @classmethod
     def update(cls, task_id: int, body: json) -> Task:
         """
-        Update data in task table
+        Update task in db
         :param - task id
         :param - json with title and description fields
-        :return tuple with task information updated
+        :return updated task
         """
 
-        if body.get("title") is None:
+        if task_id == None:
+            raise BusinessException("Task ID is required")
+
+        if body.get("title") is None or body.get("title").strip() == "":
             raise BusinessException("Title is required")
 
-        if body.get("description") is None:
+        if body.get("description") is None or body.get("description").strip() == "":
             raise BusinessException("Description is required")
 
         with DbConnectionHandler() as conn:
@@ -75,9 +78,12 @@ class TaskService(TaskServiceInterface):
     @classmethod
     def delete(cls, task_id: int = None):
         """
-        Delete data in task table by task_id
+        Delete task on db
         :param - task id
         """
+
+        if task_id == None:
+            raise BusinessException("Task ID is required")
 
         with DbConnectionHandler() as conn:
             try:
@@ -95,7 +101,7 @@ class TaskService(TaskServiceInterface):
     @classmethod
     def find_all(cls) -> List[Task]:
         """
-        Select all tasks
+        Select all tasks in db
         :return - List with Tasks selected
         """
 
@@ -118,16 +124,18 @@ class TaskService(TaskServiceInterface):
     @classmethod
     def find_by_id(cls, task_id: int = None) -> Task:
         """
-        Select data in task entity by id and/or title and/or description
+        Select tasks in db by id
         :param - Id of Task
         :return - Tasks selected
         """
 
+        if task_id == None:
+            raise BusinessException("Task ID is required")
+
         try:
             query_data = None
-            if not task_id is None:
-                with DbConnectionHandler() as conn:
-                    query_data = conn.session.query(Task).filter_by(id=task_id).one()
+            with DbConnectionHandler() as conn:
+                query_data = conn.session.query(Task).filter_by(id=task_id).one()
 
             return query_data
 
@@ -143,7 +151,7 @@ class TaskService(TaskServiceInterface):
     @classmethod
     def find(cls, *params) -> List[Task]:
         """
-        Select data in task entity by id and/or title and/or description
+        Select tasks by title or description
         :param["title"] - task title
         :param["description"] - task description
         :return - List with Tasks selected
