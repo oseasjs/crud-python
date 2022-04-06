@@ -283,3 +283,6 @@ def select_task(task_id: int) -> Task:
             raise
         finally:
             conn.session.close()
+
+if __name__ == '__main__':
+    unittest.main()
