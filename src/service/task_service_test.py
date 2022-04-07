@@ -9,7 +9,7 @@ from .task_service import TaskService
 faker = Faker()
 
 
-class TaskServiceUnitTest(unittest.TestCase):
+class TaskServiceTest(unittest.TestCase):
     """Class to test TaskService methods"""
 
     def setUp(self):
@@ -51,7 +51,7 @@ class TaskServiceUnitTest(unittest.TestCase):
             params = {"description": faker.name()}
             TaskService().add(params)
 
-        self.assertTrue(Constants.TASK_ID_REQUIRED_MESSAGE in str(context.exception))
+        self.assertTrue(Constants.TASK_TITLE_REQUIRED_MESSAGE in str(context.exception))
 
     def test_add_blank_title_failed(self):
         """Test task service add method with blank title on payload"""
@@ -60,7 +60,7 @@ class TaskServiceUnitTest(unittest.TestCase):
             params = {"title": " "}
             TaskService().add(params)
 
-        self.assertTrue(Constants.TASK_ID_REQUIRED_MESSAGE in str(context.exception))
+        self.assertTrue(Constants.TASK_TITLE_REQUIRED_MESSAGE in str(context.exception))
 
     def test_add_missing_description_failed(self):
         """Test task service add method missing description field on payload"""
@@ -197,11 +197,18 @@ class TaskServiceUnitTest(unittest.TestCase):
 
         self.assertTrue(Constants.TASK_ID_REQUIRED_MESSAGE in str(context.exception))
 
+    def test_find_by_id_raising_task_not_found_failed(self):
+        """Test task service find_by_id method"""
+
+        with self.assertRaises(BusinessException) as context:
+            TaskService().find_by_id(-1)
+
+        self.assertTrue(Constants.TASK_NOT_FOUND_MESSAGE in str(context.exception))
+
     def test_find_by_title_success(self):
         """Test task service find by title method"""
 
-        params = []
-        params.append({"title", self.expected_task.title})
+        params = {'title': self.expected_task.title}
         task_list = TaskService().find(params)
         task_list_filtered = list(
             filter(lambda t: t.id == self.expected_task.id, task_list)
@@ -215,8 +222,7 @@ class TaskServiceUnitTest(unittest.TestCase):
     def test_find_by_description_success(self):
         """Test task service find by description method"""
 
-        params = []
-        params.append({"description", self.expected_task.description})
+        params = {"description": self.expected_task.description}
         task_list = TaskService().find(params)
         task_list_filtered = list(
             filter(lambda t: t.id == self.expected_task.id, task_list)
@@ -231,55 +237,37 @@ class TaskServiceUnitTest(unittest.TestCase):
 def add_task(task_id: int, title: str, description: str) -> Task:
     """Add task in db for tests"""
     with DbConnectionHandler() as conn:
-        try:
-            conn.session.execute(
-                f"INSERT INTO tasks (id, title, description) VALUES ('{task_id}', '{title}', '{description}');"
-            )
-            conn.session.commit()
-            return Task(
-                id=task_id,
-                title=title,
-                description=description,
-            )
-        except:
-            conn.session.rollback()
-            raise
-        finally:
-            conn.session.close()
+        conn.session.execute(
+            f"INSERT INTO tasks (id, title, description) VALUES ('{task_id}', '{title}', '{description}');"
+        )
+        conn.session.commit()
+        return Task(
+            id=task_id,
+            title=title,
+            description=description,
+        )
 
 
 def delete_task(task_id: int):
     """Delete task from db created for tests"""
     with DbConnectionHandler() as conn:
-        try:
-            conn.session.execute(f"DELETE FROM tasks WHERE id={task_id};")
-            conn.session.commit()
-        except:
-            conn.session.rollback()
-            raise
-        finally:
-            conn.session.close()
+        conn.session.execute(f"DELETE FROM tasks WHERE id={task_id};")
+        conn.session.commit()
 
 
 def select_task(task_id: int) -> Task:
     """Select task from db created for tests"""
     with DbConnectionHandler() as conn:
-        try:
-            task = conn.session.execute(
-                f"SELECT * FROM tasks WHERE id='{task_id}';"
-            ).fetchone()
-            conn.session.commit()
+        task = conn.session.execute(
+            f"SELECT * FROM tasks WHERE id='{task_id}';"
+        ).fetchone()
+        conn.session.commit()
 
-            if task is None:
-                return None
+        if task is None:
+            return None
 
-            return Task(
-                id=task.id,
-                title=task.title,
-                description=task.description,
-            )
-        except:
-            conn.session.rollback()
-            raise
-        finally:
-            conn.session.close()
+        return Task(
+            id=task.id,
+            title=task.title,
+            description=task.description,
+        )

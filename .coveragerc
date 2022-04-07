@@ -1,0 +1,4 @@
+[run]
+branch = True
+omit =
+    *test*,*coverage*,*init*,*interface*,*exception*,db_base.py,app.py

@@ -20,28 +20,21 @@ class TaskService(TaskServiceInterface):
         """
 
         if body.get("title") is None or body.get("title").strip() == "":
-            raise BusinessException(Constants.TASK_ID_REQUIRED_MESSAGE)
+            raise BusinessException(Constants.TASK_TITLE_REQUIRED_MESSAGE)
 
         if body.get("description") is None or body.get("description").strip() == "":
             raise BusinessException(Constants.TASK_DESCRIPTION_REQUIRED_MESSAGE)
 
         with DbConnectionHandler() as conn:
-            try:
-                new_task = Task(title=body["title"], description=body["description"])
-                conn.session.add(new_task)
-                conn.session.commit()
+            new_task = Task(title=body["title"], description=body["description"])
+            conn.session.add(new_task)
+            conn.session.commit()
 
-                return Task(
-                    id=new_task.id,
-                    title=new_task.title,
-                    description=new_task.description,
-                )
-            except Exception as ex:
-                conn.session.rollback()
-                print(ex)
-                raise
-            finally:
-                conn.session.close()
+            return Task(
+                id=new_task.id,
+                title=new_task.title,
+                description=new_task.description,
+            )
 
     @classmethod
     def update(cls, task_id: int, body: json) -> Task:
@@ -62,19 +55,12 @@ class TaskService(TaskServiceInterface):
             raise BusinessException(Constants.TASK_DESCRIPTION_REQUIRED_MESSAGE)
 
         with DbConnectionHandler() as conn:
-            try:
-                task = conn.session.query(Task).filter_by(id=task_id).one()
-                task.title = body["title"]
-                task.description = body["description"]
-                conn.session.commit()
+            task = conn.session.query(Task).filter_by(id=task_id).one()
+            task.title = body["title"]
+            task.description = body["description"]
+            conn.session.commit()
 
-                return Task(id=task.id, title=task.title, description=task.description)
-            except Exception as ex:
-                conn.session.rollback()
-                print(ex)
-                raise
-            finally:
-                conn.session.close()
+            return Task(id=task.id, title=task.title, description=task.description)
 
     @classmethod
     def delete(cls, task_id: int = None):
@@ -87,17 +73,9 @@ class TaskService(TaskServiceInterface):
             raise BusinessException(Constants.TASK_ID_REQUIRED_MESSAGE)
 
         with DbConnectionHandler() as conn:
-            try:
-                task = conn.session.query(Task).filter_by(id=task_id).one()
-                conn.session.delete(task)
-                conn.session.commit()
-
-            except Exception as ex:
-                conn.session.rollback()
-                print(ex)
-                raise
-            finally:
-                conn.session.close()
+            task = conn.session.query(Task).filter_by(id=task_id).one()
+            conn.session.delete(task)
+            conn.session.commit()
 
     @classmethod
     def find_all(cls) -> List[Task]:
@@ -106,21 +84,10 @@ class TaskService(TaskServiceInterface):
         :return - List with Tasks selected
         """
 
-        try:
-            query_data = None
-            with DbConnectionHandler() as conn:
-                query_data = conn.session.query(Task).all()
-
-            return query_data
-
-        except NoResultFound:
-            return []
-        except Exception as ex:
-            conn.session.rollback()
-            print(ex)
-            raise
-        finally:
-            conn.session.close()
+        query_data = None
+        with DbConnectionHandler() as conn:
+            query_data = conn.session.query(Task).all()
+        return query_data
 
     @classmethod
     def find_by_id(cls, task_id: int = None) -> Task:
@@ -141,16 +108,10 @@ class TaskService(TaskServiceInterface):
             return query_data
 
         except NoResultFound:
-            return []
-        except Exception as ex:
-            conn.session.rollback()
-            print(ex)
-            raise
-        finally:
-            conn.session.close()
+            raise BusinessException(Constants.TASK_NOT_FOUND_MESSAGE)
 
     @classmethod
-    def find(cls, *params) -> List[Task]:
+    def find(cls, params) -> List[Task]:
         """
         Select tasks by title or description
         :param["title"] - task title
@@ -158,26 +119,17 @@ class TaskService(TaskServiceInterface):
         :return - List with Tasks selected
         """
 
-        try:
-            query_data = None
-            with DbConnectionHandler() as conn:
-                filters = []
+        query_data = None
+        filters = []
 
-                if "title" in params:
-                    filters.append(Task.title.contains(params.get("title")))
+        if "title" in params:
+            filters.append(Task.title.contains(params["title"]))
 
-                if "description" in params:
-                    filters.append(Task.description.contains(params.get("description")))
+        if "description" in params:
+            filters.append(Task.description.contains(params["description"]))
 
-                query_data = conn.session.query(Task).filter(*filters).all()
+        query_data = None
+        with DbConnectionHandler() as conn:
+            query_data = conn.session.query(Task).filter(*filters).all()
 
-            return query_data
-
-        except NoResultFound:
-            return []
-        except Exception as ex:
-            conn.session.rollback()
-            print(ex)
-            raise
-        finally:
-            conn.session.close()
+        return query_data
