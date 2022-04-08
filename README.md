@@ -115,3 +115,4 @@ Python application that provides API to create, read, update and delete Tasks
   - https://github.com/programadorLhama/backend_project_python-lab-
   - https://github.com/gibran-abdillah/simple-crud
   - https://thiagolopessilva.medium.com/running-unit-testing-on-github-action-using-pytest-61653d993c9c
+  - https://gitlab.com/patkennedy79/flask_user_management_example
